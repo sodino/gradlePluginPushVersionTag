@@ -16,6 +16,7 @@ public class Bean {
     String versionCode
 
     String tagName
+    String tagPrefix = 'v'
 
     String file
     String regVersionName

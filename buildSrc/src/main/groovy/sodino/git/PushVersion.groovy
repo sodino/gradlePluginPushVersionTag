@@ -21,37 +21,53 @@ public class PushVersion implements Plugin<Project> {
                 def bean = project.pushVersionTag
                 printBean(project, bean)
 
-                File fTarget = new File(project.projectDir.absolutePath + File.separator + bean.file)
-                if (!fTarget.exists()) {
-                    throw RuntimeException("Can't find target file${fTarget.absolutePath}")
-                } else if (fTarget.isDirectory()) {
-                    throw RuntimeException("Target file is directory not file. path=${fTarget.absolutePath}")
-                }
-
-
-                File fTmp = new File(project.buildDir.absolutePath + File.separator + "_tmp.push.version.tag.txt")
-                if (!project.buildDir.exists()) {
-                    project.buildDir.mkdirs()
-                }
-                if (fTmp.exists()) {
-                    fTmp.delete()
-                }
-
-                fTarget.eachLine { line, lineNo ->
-//                    println lineNo + " " + line
-                    if (lineNo > 1) {
-                        fTmp << "\n"
-                    }
-
-                    line = fixVersionInfo(bean, line)
-
-                    fTmp << line
-                }
-
-                boolean bool = fTmp.renameTo(fTarget)
-                println "write version info 2 target file: ${bool ? "successed" : "failed"}."
+                fixCodeFile(project, bean)
+                doGit(bean)
             }
         }
+    }
+
+    def doGit(Bean bean) {
+        Process pCommit = "git commit -a -m \"【Version】v${bean.versionName} is out".execute()
+        println "process commit:" + pCommit.text
+
+        Process pTag = "git tag ${bean.tagPrefix}${bean.versionName}".execute()
+        println "process tag:" + pTag.text
+
+        Process pPushAllTags = "git push --tags".execute()
+        println "process pushAllTags:" + pPushAllTags.text
+    }
+
+    def fixCodeFile(Project project, Bean bean) {
+        File fTarget = new File(project.projectDir.absolutePath + File.separator + bean.file)
+        if (!fTarget.exists()) {
+            throw RuntimeException("Can't find target file${fTarget.absolutePath}")
+        } else if (fTarget.isDirectory()) {
+            throw RuntimeException("Target file is directory not file. path=${fTarget.absolutePath}")
+        }
+
+
+        File fTmp = new File(project.buildDir.absolutePath + File.separator + "_tmp.push.version.tag.txt")
+        if (!project.buildDir.exists()) {
+            project.buildDir.mkdirs()
+        }
+        if (fTmp.exists()) {
+            fTmp.delete()
+        }
+
+        fTarget.eachLine { line, lineNo ->
+//                    println lineNo + " " + line
+            if (lineNo > 1) {
+                fTmp << "\n"
+            }
+
+            line = fixVersionInfo(bean, line)
+
+            fTmp << line
+        }
+
+        boolean bool = fTmp.renameTo(fTarget)
+        println "write version info 2 target file: ${bool ? "successed" : "failed"}."
     }
 
     String fixVersionInfo(Bean bean, String line) {
@@ -124,6 +140,7 @@ public class PushVersion implements Plugin<Project> {
         println "versionName=${bean.versionName}"
         println "versionCode=${bean.versionCode}"
         println "tagName=${bean.tagName}"
+        println "tagPrefix=${bean.tagPrefix}"
         println "fixClassName=${bean.file}"
         println "regVersionName=${bean.regVersionName}"
         println "regVersionCode=${bean.regVersionCode}"

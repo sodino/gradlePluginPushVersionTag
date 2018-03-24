@@ -39,6 +39,7 @@ pushVersionTag {
     versionCode     = 2010000
 
     tagName         = 'v2.1.0'
+    tagPrefix       = 'gradle'
 
     file            = 'src/main/java/com/sodino/demo/Constant.kt'
     regVersionName  = "const val name = \"[0-9.]+.\""
