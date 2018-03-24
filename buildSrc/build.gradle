@@ -1,0 +1,27 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+}
+
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+    //引用 google() 让 compile 'com.android.tools.build:gradle:3.0.1' 通过
+    google()
+}
+
+dependencies {
+    //gradle sdk
+    compile gradleApi()
+    //groovy sdk
+    compile localGroovy()
+
+    compile 'com.android.tools.build:gradle:3.0.1'
+    compile 'commons-io:commons-io:2.5'
+}
