@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'push.version.tag'
+
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -30,4 +32,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+pushVersionTag {
+    versionName     = '2.1.0'
+    versionCode     = 2010000
+
+    tagName         = 'v2.1.0'
+
+    file            = 'src/main/java/com/sodino/demo/Constant.kt'
+    regVersionName  = "const val name = \"[0-9.]+.\""
+    regVersionCode  = "const val code = \\d+"
 }
