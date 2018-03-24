@@ -22,20 +22,31 @@ public class PushVersion implements Plugin<Project> {
                 printBean(project, bean)
 
                 fixCodeFile(project, bean)
-                doGit(bean)
+
+                if (!fixedVersionName) {
+                    throw new RuntimeException("can't find version name from ${bean.file}")
+                }
+                if (!fixedVersionCode) {
+                    throw new RuntimeException("can't find version code from ${bean.file}")
+                }
+
+                doGit(project, bean)
             }
         }
     }
 
-    def doGit(Bean bean) {
+    def doGit(Project project, Bean bean) {
         Process pCommit = "git commit -a -m \"【Version】v${bean.versionName} is out".execute()
-        println "process commit:" + pCommit.text
+        println "process commit: ${(pCommit.err && pCommit.err.available()) ? pCommit.err.text : pCommit.text}"
 
-        Process pTag = "git tag ${bean.tagPrefix}${bean.versionName}".execute()
-        println "process tag:" + pTag.text
+        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
+        println "process pPush: ${(pPush.err && pPush.err.available()) ? pPush.err.text : pPush.text}"
+
+        Process pTag = "git tag ${bean.tagName}".execute()
+        println "process pTag: ${(pTag.err && pTag.err.available()) ? pTag.err.text : pTag.text}"
 
         Process pPushAllTags = "git push --tags".execute()
-        println "process pushAllTags:" + pPushAllTags.text
+        println "process pPushAllTags: ${(pPushAllTags.err && pPushAllTags.err.available()) ? pPushAllTags.err.text : pPushAllTags.text}"
     }
 
     def fixCodeFile(Project project, Bean bean) {
@@ -140,11 +151,33 @@ public class PushVersion implements Plugin<Project> {
         println "versionName=${bean.versionName}"
         println "versionCode=${bean.versionCode}"
         println "tagName=${bean.tagName}"
-        println "tagPrefix=${bean.tagPrefix}"
         println "fixClassName=${bean.file}"
         println "regVersionName=${bean.regVersionName}"
         println "regVersionCode=${bean.regVersionCode}"
         println "targetFilePath=" + project.projectDir + File.separator + bean.file
 
+    }
+
+    String currentGitBranch(Project project) {
+        def gitBranch = "unknownBranch"
+
+        // 本地编译生效
+        try {
+            def workingDir = new File("${project.projectDir}")
+            def result = 'git rev-parse --abbrev-ref HEAD'.execute(null, workingDir)
+            result.waitFor()
+            if (result.exitValue() == 0) {
+                gitBranch = result.text.trim()
+            }
+        } catch (e) {
+            e.printStackTrace()
+        }
+        println("---> git branch name : ${gitBranch}")
+
+        if ("unknownBranch".equals(gitBranch)) {
+            throw new RuntimeException("cann't get git branch name")
+        }
+
+        return gitBranch
     }
 }
