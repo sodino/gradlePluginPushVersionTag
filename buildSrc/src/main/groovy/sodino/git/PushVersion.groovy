@@ -42,26 +42,43 @@ public class PushVersion implements Plugin<Project> {
 //        git -C "/home/domain/" status
 //        No need to set --git-dir and --work-tree anymore!
 
-                println "test -> ${new File(".").absolutePath}"
+//          println "test -> ${new File(".").absolutePath}"
 
-        Process pStatus = "git status".execute()
-        println "pStatus : " + pStatus.text
+//        Process pStatus = "git status".execute()
+//        println "pStatus : " + pStatus.text
 
-        Process pCommit = "git -C ${new File(".").absolutePath} commit -a -m \"【Version】v${bean.versionName} is out".execute()
-        println "process commit: ${(pCommit.err && pCommit.err.available()) ? pCommit.err.text : pCommit.text}"
+        String errText
+        Process pCommit = "git commit -m \"【Version】v${bean.versionName} is out\"".execute()
+        errText = pCommit.err.text
+        if (errText) {
+            throw new RuntimeException("git commit error:" + errText)
+        } else {
+            println "process commit: ${pCommit.text}"
+        }
 
-        pStatus = "git status".execute()
-        println "pStatus2 : " + pStatus.text
+        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
+        errText = pPush.err.text
+        if (errText) {
+            throw new RuntimeException("git push error: " + errText)
+        } else {
+            println "process pPush: pPush.text"
+        }
 
-//
-//        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
-//        println "process pPush: ${(pPush.err && pPush.err.available()) ? pPush.err.text : pPush.text}"
-//
-//        Process pTag = "git tag ${bean.tagName}".execute()
-//        println "process pTag: ${(pTag.err && pTag.err.available()) ? pTag.err.text : pTag.text}"
-//
-//        Process pPushAllTags = "git push --tags".execute()
-//        println "process pPushAllTags: ${(pPushAllTags.err && pPushAllTags.err.available()) ? pPushAllTags.err.text : pPushAllTags.text}"
+        Process pTag = "git tag ${bean.tagName}".execute()
+        errText = pTag.err.text
+        if (errText) {
+            throw new RuntimeException("git tag error:" + errText)
+        } else {
+            println "process pTag: ${pTag.text}"
+        }
+
+        Process pPushAllTags = "git push --tags".execute()
+        errText = pPushAllTags.err.text
+        if (errText) {
+            throw new RuntimeException("git push all tags error:" + errText)
+        } else {
+            println "process pPushAllTags: ${pPushAllTags.text}"
+        }
     }
 
     def fixCodeFile(Project project, Bean bean) {
