@@ -35,66 +35,88 @@ public class PushVersion implements Plugin<Project> {
         }
     }
 
-    def doGit(Project project, Bean bean) {
-// --git-dir --work-tree
-//Starting git 1.8.5 (which should be out next week), it will be even simpler:
-//
-//        git -C "/home/domain/" status
-//        No need to set --git-dir and --work-tree anymore!
-
-//          println "test -> ${new File(".").absolutePath}"
-
-//        Process pStatus = "git status".execute()
-//        println "pStatus : " + pStatus.text
-
+    def gitCommit(Project project, Bean bean) {
         String errText, cmd
         // -m 参数后面的空格为中文空格
         cmd = "git commit -a -m 【Version】v${bean.versionName}　is　out"
         println cmd
-        Process pCommit = cmd.execute()
-        errText = pCommit.err.text
+        Process process = cmd.execute()
+        errText = process.err.text
         if (errText) {
             throw new RuntimeException("git commit error:" + errText)
         } else {
-            println "process commit: ${pCommit.text}"
+            println "process git commit: ${process.text}"
         }
-        pCommit.closeStreams()
+        process.closeStreams()
+    }
 
-
+    def gitPushCommit(Project project, Bean bean) {
+        String errText, cmd
         cmd = "git push origin ${currentGitBranch(project)}"
         println cmd
-        Process pPush = cmd.execute()
+        Process process = cmd.execute()
 //        def tmp = pPush.in.text // pPush.text读不出什么内容来...
-        errText = pPush.err.text
+        errText = process.err.text
 //        if (errText) {
 //            throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
 //        } else {
-            println "process pPush: ${errText}"
+        println "process git push: ${errText}"
 //        }
-        pPush.closeStreams()
+        process.closeStreams()
+    }
 
+    def gitTag(Project project, Bean bean) {
+        String errText, cmd
         cmd = "git tag ${bean.tagName}"
         println cmd
-        Process pTag = cmd.execute()
-        errText = pTag.err.text
+        Process process = cmd.execute()
+        errText = process.err.text
         if (errText) {
             throw new RuntimeException("git tag error:" + errText)
         } else {
-            println "process pTag: ${pTag.text}"
+            println "process git tag: ${process.text}"
         }
-        pTag.closeStreams()
+        process.closeStreams()
+    }
+
+    def gitPushAllTag(Project project, Bean bean) {
+        String errText, cmd
 
         cmd = "git push --tags"
         println cmd
-        Process pPushAllTags = cmd.execute()
+        Process process = cmd.execute()
 //        def text = pPushAllTags.in.text // text读不出什么来
-        errText = pPushAllTags.err.text
+        errText = process.err.text   // 执行成功的text也在errText，奇怪..
 //        if (errText) {
 //            throw new RuntimeException("git push all tags error:" + errText)
 //        } else {
-            println "process pPushAllTags: ${errText}"
+        println "process git push --tags: ${errText}"
 //        }
-        pPushAllTags.closeStreams()
+        process.closeStreams()
+    }
+
+    def gitPushTag(Project project, Bean bean) {
+        String errText, cmd
+
+        cmd = "git push origin ${bean.tagName}"
+        println cmd
+        Process process = cmd.execute()
+//        def text = pPushAllTags.in.text // text读不出什么来
+        errText = process.err.text   // 执行成功的text也在errText，奇怪..
+//        if (errText) {
+//            throw new RuntimeException("git push all tags error:" + errText)
+//        } else {
+        println "process git push --tags: ${errText}"
+//        }
+        process.closeStreams()
+    }
+
+    def doGit(Project project, Bean bean) {
+        gitCommit(project, bean)
+        gitPushCommit(project, bean)
+        gitTag(project, bean)
+//        gitPushAllTag(project, bean)
+        gitPushTag(project, bean)
     }
 
     def fixCodeFile(Project project, Bean bean) {
