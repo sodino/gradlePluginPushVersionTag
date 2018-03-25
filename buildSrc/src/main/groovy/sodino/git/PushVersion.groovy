@@ -64,7 +64,7 @@ public class PushVersion implements Plugin<Project> {
         Process pPush = cmd.execute()
         errText = pPush.err.text
         if (errText) {
-            throw new RuntimeException("git push error: " + errText)
+            throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
         } else {
             println "process pPush: pPush.text"
         }
