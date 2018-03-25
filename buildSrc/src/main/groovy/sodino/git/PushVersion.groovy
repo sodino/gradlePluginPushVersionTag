@@ -47,8 +47,10 @@ public class PushVersion implements Plugin<Project> {
 //        Process pStatus = "git status".execute()
 //        println "pStatus : " + pStatus.text
 
-        String errText
-        Process pCommit = "git commit -m \"【Version】v${bean.versionName} is out\"".execute()
+        String errText, cmd
+        cmd = "git -C ${new File(".").absolutePath} commit -a -m \"【Version】v${bean.versionName}.is.out\""
+        println cmd
+        Process pCommit = cmd.execute()
         errText = pCommit.err.text
         if (errText) {
             throw new RuntimeException("git commit error:" + errText)
@@ -56,7 +58,10 @@ public class PushVersion implements Plugin<Project> {
             println "process commit: ${pCommit.text}"
         }
 
-        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
+
+        cmd = "git push origin ${currentGitBranch(project)}"
+        println cmd
+        Process pPush = cmd.execute()
         errText = pPush.err.text
         if (errText) {
             throw new RuntimeException("git push error: " + errText)
@@ -64,7 +69,9 @@ public class PushVersion implements Plugin<Project> {
             println "process pPush: pPush.text"
         }
 
-        Process pTag = "git tag ${bean.tagName}".execute()
+        cmd = "git tag ${bean.tagName}"
+        println cmd
+        Process pTag = cmd.execute()
         errText = pTag.err.text
         if (errText) {
             throw new RuntimeException("git tag error:" + errText)
@@ -72,7 +79,9 @@ public class PushVersion implements Plugin<Project> {
             println "process pTag: ${pTag.text}"
         }
 
-        Process pPushAllTags = "git push --tags".execute()
+        cmd = "git push --tags"
+        println cmd
+        Process pPushAllTags = cmd.execute()
         errText = pPushAllTags.err.text
         if (errText) {
             throw new RuntimeException("git push all tags error:" + errText)
