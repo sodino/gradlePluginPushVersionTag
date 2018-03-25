@@ -17,9 +17,9 @@ public class PushVersion implements Plugin<Project> {
         project.task('push.version.tag')  {
             doLast {
                 println 'push.version.tag 1 run...'
-                printProjectInfo(project)
+//                printProjectInfo(project)
                 def bean = project.pushVersionTag
-                printBean(project, bean)
+//                printBean(project, bean)
 
                 fixCodeFile(project, bean)
 
@@ -39,7 +39,7 @@ public class PushVersion implements Plugin<Project> {
         String errText, cmd
         // -m 参数后面的空格为中文空格
         cmd = "git commit -a -m 【Version】v${bean.versionName}　is　out"
-        println cmd
+        println "cmd:" + cmd
         Process process = cmd.execute()
         errText = process.err.text
         if (errText) {
@@ -53,7 +53,7 @@ public class PushVersion implements Plugin<Project> {
     def gitPushCommit(Project project, Bean bean) {
         String errText, cmd
         cmd = "git push origin ${currentGitBranch(project)}"
-        println cmd
+        println "cmd:" + cmd
         Process process = cmd.execute()
 //        def tmp = pPush.in.text // pPush.text读不出什么内容来...
         errText = process.err.text
@@ -68,7 +68,7 @@ public class PushVersion implements Plugin<Project> {
     def gitTag(Project project, Bean bean) {
         String errText, cmd
         cmd = "git tag ${bean.tagName}"
-        println cmd
+        println "cmd:" + cmd
         Process process = cmd.execute()
         errText = process.err.text
         if (errText) {
@@ -83,7 +83,7 @@ public class PushVersion implements Plugin<Project> {
         String errText, cmd
 
         cmd = "git push --tags"
-        println cmd
+        println "cmd:" + cmd
         Process process = cmd.execute()
 //        def text = pPushAllTags.in.text // text读不出什么来
         errText = process.err.text   // 执行成功的text也在errText，奇怪..
@@ -99,7 +99,7 @@ public class PushVersion implements Plugin<Project> {
         String errText, cmd
 
         cmd = "git push origin ${bean.tagName}"
-        println cmd
+        println "cmd:" + cmd
         Process process = cmd.execute()
 //        def text = pPushAllTags.in.text // text读不出什么来
         errText = process.err.text   // 执行成功的text也在errText，奇怪..
@@ -113,8 +113,9 @@ public class PushVersion implements Plugin<Project> {
 
     def doGit(Project project, Bean bean) {
         gitCommit(project, bean)
-        gitPushCommit(project, bean)
+        // 先打标签再pushCommit，这样如果标签已经重复的话会提前中断流程
         gitTag(project, bean)
+        gitPushCommit(project, bean)
 //        gitPushAllTag(project, bean)
         gitPushTag(project, bean)
     }
@@ -196,6 +197,7 @@ public class PushVersion implements Plugin<Project> {
         if (findResult == null) {
             return null
         } else {
+            // 版本名以'"'结尾，即下方中的正则  '\"$'， 然后替换时要补偿该'"'
             String fixResult = findResult.replaceAll(/[0-9.]+.*\"$/, bean.versionName + "\"")
             String result = line.replaceAll(findResult, fixResult)
             println "fix version name from [$line] to [$result]"
