@@ -48,7 +48,7 @@ public class PushVersion implements Plugin<Project> {
 //        println "pStatus : " + pStatus.text
 
         String errText, cmd
-        cmd = "git -C ${new File(".").absolutePath} commit -a -m \"【Version】v${bean.versionName}.is.out\""
+        cmd = "git -C ${new File(".").absolutePath} commit -a -m \"【Version】v${bean.versionName}　is　out\""
         println cmd
         Process pCommit = cmd.execute()
         errText = pCommit.err.text
@@ -213,7 +213,7 @@ public class PushVersion implements Plugin<Project> {
         } catch (e) {
             e.printStackTrace()
         }
-        println("---> git branch name : ${gitBranch}")
+//        println("---> git branch name : ${gitBranch}")
 
         if ("unknownBranch".equals(gitBranch)) {
             throw new RuntimeException("cann't get git branch name")
