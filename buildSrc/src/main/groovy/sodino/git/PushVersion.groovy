@@ -58,18 +58,20 @@ public class PushVersion implements Plugin<Project> {
         } else {
             println "process commit: ${pCommit.text}"
         }
+        pCommit.closeStreams()
 
 
         cmd = "git push origin ${currentGitBranch(project)}"
         println cmd
         Process pPush = cmd.execute()
-        def tmp = pPush.in.text
+//        def tmp = pPush.in.text // pPush.text读不出什么内容来...
         errText = pPush.err.text
-        if (errText) {
-            throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
-        } else {
-            println "process pPush: pPush.text"
-        }
+//        if (errText) {
+//            throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
+//        } else {
+            println "process pPush: ${errText}"
+//        }
+        pPush.closeStreams()
 
         cmd = "git tag ${bean.tagName}"
         println cmd
@@ -80,6 +82,7 @@ public class PushVersion implements Plugin<Project> {
         } else {
             println "process pTag: ${pTag.text}"
         }
+        pTag.closeStreams()
 
         cmd = "git push --tags"
         println cmd
@@ -90,6 +93,7 @@ public class PushVersion implements Plugin<Project> {
         } else {
             println "process pPushAllTags: ${pPushAllTags.text}"
         }
+        pPushAllTags.closeStreams()
     }
 
     def fixCodeFile(Project project, Bean bean) {
