@@ -200,8 +200,8 @@ public class PushVersion implements Plugin<Project> {
             // 版本名以'"'结尾，即下方中的正则  '\"$'， 然后替换时要补偿该'"'
             String fixResult = findResult.replaceAll(/[0-9.]+.*\"$/, bean.versionName + "\"")
             String result = line.replaceAll(findResult, fixResult)
-            // 最后加上改动的时间戳
-            result +=  "   // time modified: ${yyyyMMddHHmmssSSS()}"
+//            // 最后加上改动的时间戳(先不加了)
+//            result +=  "   // time modified: ${yyyyMMddHHmmssSSS()}"
             println "fix version name from [$line] to [$result]"
             return result
         }
