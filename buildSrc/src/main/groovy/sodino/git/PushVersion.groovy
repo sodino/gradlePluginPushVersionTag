@@ -63,8 +63,8 @@ public class PushVersion implements Plugin<Project> {
         cmd = "git push origin ${currentGitBranch(project)}"
         println cmd
         Process pPush = cmd.execute()
-        errText = pPush.err.text
         def tmp = pPush.text
+        errText = pPush.err.text
         if (errText) {
             throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
         } else {
