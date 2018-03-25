@@ -35,8 +35,8 @@ dependencies {
 }
 
 pushVersionTag {
-    versionName     = '2.1.0-beta-02'
-    versionCode     = 201000002
+    versionName     = '2.1.0-beta-03'
+    versionCode     = 201000003
 
     tagName         = "plugin$versionName"
 

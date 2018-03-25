@@ -36,17 +36,30 @@ public class PushVersion implements Plugin<Project> {
     }
 
     def doGit(Project project, Bean bean) {
-        Process pCommit = "git commit -a -m \"【Version】v${bean.versionName} is out".execute()
-        println "process commit: ${(pCommit.err && pCommit.err.available()) ? pCommit.err.text : pCommit.text}"
+// --git-dir --work-tree
+//Starting git 1.8.5 (which should be out next week), it will be even simpler:
+//
+//        git -C "/home/domain/" status
+//        No need to set --git-dir and --work-tree anymore!
 
-        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
-        println "process pPush: ${(pPush.err && pPush.err.available()) ? pPush.err.text : pPush.text}"
+                println "test -> ${new File(".").absolutePath}"
 
-        Process pTag = "git tag ${bean.tagName}".execute()
-        println "process pTag: ${(pTag.err && pTag.err.available()) ? pTag.err.text : pTag.text}"
+        Process pStatus = "git status".execute()
+        println "pStatus : " + pStatus.text
 
-        Process pPushAllTags = "git push --tags".execute()
-        println "process pPushAllTags: ${(pPushAllTags.err && pPushAllTags.err.available()) ? pPushAllTags.err.text : pPushAllTags.text}"
+
+
+//        Process pCommit = "git commit -a -m \"【Version】v${bean.versionName} is out".execute()
+//        println "process commit: ${(pCommit.err && pCommit.err.available()) ? pCommit.err.text : pCommit.text}"
+//
+//        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
+//        println "process pPush: ${(pPush.err && pPush.err.available()) ? pPush.err.text : pPush.text}"
+//
+//        Process pTag = "git tag ${bean.tagName}".execute()
+//        println "process pTag: ${(pTag.err && pTag.err.available()) ? pTag.err.text : pTag.text}"
+//
+//        Process pPushAllTags = "git push --tags".execute()
+//        println "process pPushAllTags: ${(pPushAllTags.err && pPushAllTags.err.available()) ? pPushAllTags.err.text : pPushAllTags.text}"
     }
 
     def fixCodeFile(Project project, Bean bean) {
