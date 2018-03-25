@@ -88,11 +88,11 @@ public class PushVersion implements Plugin<Project> {
         println cmd
         Process pPushAllTags = cmd.execute()
         errText = pPushAllTags.err.text
-        if (errText) {
-            throw new RuntimeException("git push all tags error:" + errText)
-        } else {
+//        if (errText) {
+//            throw new RuntimeException("git push all tags error:" + errText)
+//        } else {
             println "process pPushAllTags: ${pPushAllTags.text}"
-        }
+//        }
         pPushAllTags.closeStreams()
     }
 
