@@ -47,10 +47,12 @@ public class PushVersion implements Plugin<Project> {
         Process pStatus = "git status".execute()
         println "pStatus : " + pStatus.text
 
+        Process pCommit = "git -C ${new File(".").absolutePath} commit -a -m \"【Version】v${bean.versionName} is out".execute()
+        println "process commit: ${(pCommit.err && pCommit.err.available()) ? pCommit.err.text : pCommit.text}"
 
+        pStatus = "git status".execute()
+        println "pStatus2 : " + pStatus.text
 
-//        Process pCommit = "git commit -a -m \"【Version】v${bean.versionName} is out".execute()
-//        println "process commit: ${(pCommit.err && pCommit.err.available()) ? pCommit.err.text : pCommit.text}"
 //
 //        Process pPush = "git push origin ${currentGitBranch(project)}".execute()
 //        println "process pPush: ${(pPush.err && pPush.err.available()) ? pPush.err.text : pPush.text}"
