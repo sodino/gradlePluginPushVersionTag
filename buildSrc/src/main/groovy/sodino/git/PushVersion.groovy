@@ -48,7 +48,8 @@ public class PushVersion implements Plugin<Project> {
 //        println "pStatus : " + pStatus.text
 
         String errText, cmd
-        cmd = "git -C ${new File(".").absolutePath} commit -a -m \"【Version】v${bean.versionName}　is　out\""
+        // -m 参数后面的空格为中文空格
+        cmd = "git commit -a -m 【Version】v${bean.versionName}　is　out"
         println cmd
         Process pCommit = cmd.execute()
         errText = pCommit.err.text
@@ -63,6 +64,7 @@ public class PushVersion implements Plugin<Project> {
         println cmd
         Process pPush = cmd.execute()
         errText = pPush.err.text
+        def tmp = pPush.text
         if (errText) {
             throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
         } else {
