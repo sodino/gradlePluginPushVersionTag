@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'push.version.tag'
+apply plugin: 'pushVersionTag'
 
 android {
     compileSdkVersion 26
@@ -35,8 +35,8 @@ dependencies {
 }
 
 pushVersionTag {
-    versionName     = '1.0.1'
-    versionCode     = 2
+    versionName     = '1.0.2'
+    versionCode     = 3
 
     tagName         = "$versionName"
 
