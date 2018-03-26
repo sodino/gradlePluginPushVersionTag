@@ -62,3 +62,6 @@ pushVersionTag {
 `file:`: The code file which declared versionName and versionCode
 `regVersionName`: The Regex to find `versionName`
 `regVersionCode`: The Regex to find `versionCode`
+
+--------------
+[About Sodino](http://sodino.com/about/)
