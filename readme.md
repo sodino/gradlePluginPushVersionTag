@@ -38,6 +38,9 @@ apply plugin: 'pushVersionTag'
 
 ### Step3: Fill in the configuration
 
+Add it in your `build.gradle` of sdk module or app module:
+
+
 ```groovy
 pushVersionTag {
     versionName     = '1.0.2' 
