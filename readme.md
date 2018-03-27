@@ -31,14 +31,14 @@ buildscript {
 
 ### Step2: apply pushVersionTag plugin
 
-Add it in your `build.gradle` of sdk module or app module:
+Add it in your `build.gradle` of library module or app module:
 ```groovy
 apply plugin: 'pushVersionTag'
 ```
 
 ### Step3: Fill in the configuration
 
-Add it in your `build.gradle` of sdk module or app module:
+Add it in your `build.gradle` of library module or app module:
 
 
 ```groovy
@@ -62,6 +62,19 @@ pushVersionTag {
 `file:`: The code file which declared versionName and versionCode
 `regVersionName`: The Regex to find `versionName`
 `regVersionCode`: The Regex to find `versionCode`
+
+### Ste4: execute plugin task
+
+execute plugin task, the code changes will been commit & tag & push.
+
+```groovy
+./gradlew :[library or app module name]:pushVersionTag
+
+// for example 
+./gradlew :app:pushVersionTag
+```
+
+![effect.preview](https://wx1.sinaimg.cn/mw690/e3dc9ceagy1fpr6gwcc0ij20pq0i4tcr.jpg)
 
 --------------
 [About Sodino](http://sodino.com/about/)
