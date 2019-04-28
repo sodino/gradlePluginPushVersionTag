@@ -38,7 +38,7 @@ public class PushVersion implements Plugin<Project> {
     def gitCommit(Project project, Bean bean) {
         String errText, cmd
         // -m 参数后面的空格为中文空格
-        cmd = "git commit -a -m 【Version】v${bean.versionName}　is　out"
+        cmd = "git commit -a -m 【Version】${bean.tagName}　is　out"
         println "cmd:" + cmd
         Process process = cmd.execute()
         errText = process.err.text

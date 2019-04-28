@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 //pushVersionTag {
 //    versionName     = '2.1.0'
 //    versionCode     = 2010000
-//
+//    tagName         = "v$versionName"
 //    fixClassName    = 'com.sodino.demo.Constant.kt'
 //    regVersionName       = 'const val name = '
 //}
