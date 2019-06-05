@@ -14,7 +14,7 @@ public class PushVersion implements Plugin<Project> {
         // extensions不能在task域中create
         project.extensions.create('pushVersionTag', Bean)
 
-        project.task('pushVersionTag')  {
+        project.task('pushVersionTag', group : "upload", description: 'Git tag + comment + push kit.')  {
             doLast {
                 println 'pushVersionTag run...'
 //                printProjectInfo(project)
