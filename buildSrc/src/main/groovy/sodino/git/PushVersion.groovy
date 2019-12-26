@@ -2,6 +2,8 @@ package sodino.git
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.process.ExecResult
 
 import java.util.regex.Pattern
 
@@ -9,8 +11,11 @@ public class PushVersion implements Plugin<Project> {
     Pattern regVersionCode, regVersionName
     boolean fixedVersionCode, fixedVersionName
 
+    Logger  logger
+
     @Override
     void apply(Project project) {
+        logger = project.logger
         // extensions不能在task域中create
         project.extensions.create('pushVersionTag', Bean)
 
@@ -20,6 +25,8 @@ public class PushVersion implements Plugin<Project> {
 //                printProjectInfo(project)
                 def bean = project.pushVersionTag
 //                printBean(project, bean)
+
+//                nothingChanged(project)
 
                 fixCodeFile(project, bean)
 
@@ -35,88 +42,150 @@ public class PushVersion implements Plugin<Project> {
         }
     }
 
-    def gitCommit(Project project, Bean bean) {
-        String errText, cmd
-        // -m 参数后面的空格为中文空格
-        cmd = "git commit -a -m 【Version】${bean.tagName}　is　out"
-        println "cmd:" + cmd
-        Process process = cmd.execute()
-        errText = process.err.text
-        if (errText) {
-            throw new RuntimeException("git commit error:" + errText)
-        } else {
-            println "process git commit: ${process.text}"
+    def nothingChanged(Project project) {
+        def outStandard = new ByteArrayOutputStream()
+        def outError = new ByteArrayOutputStream()
+        ExecResult result = project.exec {
+            ignoreExitValue true
+            executable "git"
+            args "status", "-s"
+            standardOutput = outStandard
+            errorOutput = outError
         }
-        process.closeStreams()
+
+        if (result.exitValue == 0) {
+            String changed = outStandard.toString()
+            if (changed?.length() > 0) {
+                // 还有其它文件变更，需要提示用户先单独提交这些变更，才能使用 pushVersionTag
+                throw new RuntimeException("There are some file(s) changed. Please execute 'COMMIT' first. ->\n${changed}")
+            }
+        } else {
+            throw new RuntimeException("git status error. -> \n${outError.toString()}")
+        }
+    }
+
+    def execCommand(Project project, String cmd, List<String> args) {
+        execCommand(project, cmd, args) {
+            ExecResult result, def standard, def error ->
+                String logName = "${cmd} ${(args.size() >=1 ? args.get(0) : "")} ..."
+                if (result.exitValue == 0) {
+                    logger.info("$logName successfully. -> \n${standard.toString()}")
+                } else {
+                    throw new RuntimeException("$logName error. ->\n${error.toString()}")
+                }
+        }
+    }
+
+    def execCommand(Project project, String cmd, List<String> args, Closure closure) {
+        def outStandard = new ByteArrayOutputStream()
+        def outError = new ByteArrayOutputStream()
+        ExecResult result = project.exec {
+//            ignoreExitValue true
+//            executable cmd
+//            args args
+//            standardOutput = outStandard
+//            errorOutput = outError
+
+            it.setIgnoreExitValue(true)
+            it.setExecutable(cmd)
+            it.setArgs(args)
+            it.setStandardOutput(outStandard)
+            it.setErrorOutput(outError)
+        }
+
+        closure(result, outStandard, outError)
+    }
+
+    def gitCommit(Project project, Bean bean) {
+        def outStandard = new ByteArrayOutputStream()
+        def outError = new ByteArrayOutputStream()
+        ExecResult result = project.exec {
+            ignoreExitValue true
+            executable "git"
+            args "commit", "-a", "-m", "【Version】${bean.tagName} is out"
+            standardOutput = outStandard
+            errorOutput = outError
+        }
+
+        if (result.exitValue == 0) {
+            logger.info("git commit successfully. -> \n${outStandard.toString()}")
+        } else {
+            throw new RuntimeException("git commit error. -> \n${outError.toString()}")
+        }
     }
 
     def gitPushCommit(Project project, Bean bean) {
-        String errText, cmd
-        cmd = "git push origin ${currentGitBranch(project)}"
-        println "cmd:" + cmd
-        Process process = cmd.execute()
-//        def tmp = pPush.in.text // pPush.text读不出什么内容来...
-        errText = process.err.text
-//        if (errText) {
-//            throw new RuntimeException("git push error(${pPush.exitValue()}): " + errText)
-//        } else {
-        println "process git push: ${errText}"
-//        }
-        process.closeStreams()
+        def outStandard = new ByteArrayOutputStream()
+        def outError = new ByteArrayOutputStream()
+        ExecResult result = project.exec {
+            ignoreExitValue true
+            executable "git"
+            args "push", "origin", ${currentGitBranch(project)}
+
+            standardOutput = outStandard
+            errorOutput = outError
+        }
+
+        if (result.exitValue == 0) {
+            logger.info("git push successfully. -> \n${outStandard.toString()}")
+        } else {
+            throw new RuntimeException("git push error. -> \n${outError.toString()}")
+        }
+
     }
 
     def gitTag(Project project, Bean bean) {
-        String errText, cmd
-        cmd = "git tag ${bean.tagName}"
-        println "cmd:" + cmd
-        Process process = cmd.execute()
-        errText = process.err.text
-        if (errText) {
-            throw new RuntimeException("git tag error:" + errText)
-        } else {
-            println "process git tag: ${process.text}"
+        def outStandard = new ByteArrayOutputStream()
+        def outError = new ByteArrayOutputStream()
+        ExecResult result = project.exec {
+            ignoreExitValue true
+            executable "git"
+            args "tag", bean.tagName
+
+            standardOutput = outStandard
+            errorOutput = outError
         }
-        process.closeStreams()
-    }
 
-    def gitPushAllTag(Project project, Bean bean) {
-        String errText, cmd
-
-        cmd = "git push --tags"
-        println "cmd:" + cmd
-        Process process = cmd.execute()
-//        def text = pPushAllTags.in.text // text读不出什么来
-        errText = process.err.text   // 执行成功的text也在errText，奇怪..
-//        if (errText) {
-//            throw new RuntimeException("git push all tags error:" + errText)
-//        } else {
-        println "process git push --tags: ${errText}"
-//        }
-        process.closeStreams()
+        if (result.exitValue == 0) {
+            logger.info("git tag successfully. -> \n${outStandard.toString()}")
+        } else {
+            throw new RuntimeException("git tag error. -> \n${outError.toString()}")
+        }
     }
 
     def gitPushTag(Project project, Bean bean) {
-        String errText, cmd
+        def outStandard = new ByteArrayOutputStream()
+        def outError = new ByteArrayOutputStream()
+        ExecResult result = process.exec {
+            ignoreExitValue true
+            executable "git"
+            args "push", "origin", bean.tagName
 
-        cmd = "git push origin ${bean.tagName}"
-        println "cmd:" + cmd
-        Process process = cmd.execute()
-//        def text = pPushAllTags.in.text // text读不出什么来
-        errText = process.err.text   // 执行成功的text也在errText，奇怪..
-//        if (errText) {
-//            throw new RuntimeException("git push all tags error:" + errText)
-//        } else {
-        println "process git push --tags: ${errText}"
-//        }
-        process.closeStreams()
+            standardOutput = outStandard
+            errorOutput = outError
+        }
+
+        if (result.exitValue == 0) {
+            logger.info("git push tag successfully. -> \n${outStandard.toString()}")
+        } else {
+            throw new RuntimeException("git push tag error. -> \n${outError.toString()}")
+        }
     }
 
     def doGit(Project project, Bean bean) {
-        gitCommit(project, bean)
+//        gitCommit(project, bean)
+        execCommand(project,
+                "git",
+                ["commit",
+                 "-a",
+                 "-m",
+                 "【Version】${bean.tagName} is out"
+                ]
+        )
+
         // 先打标签再pushCommit，这样如果标签已经重复的话会提前中断流程
         gitTag(project, bean)
         gitPushCommit(project, bean)
-//        gitPushAllTag(project, bean)
         gitPushTag(project, bean)
     }
 
