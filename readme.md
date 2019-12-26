@@ -45,7 +45,7 @@ Add it in your `build.gradle` of library module or app module:
 pushVersionTag {
     versionName     = '1.0.2' 
     versionCode     = 3
-    \
+
     tagName         = "$versionName"
     
     file            = 'app/src/main/java/com/sodino/demo/Constant.kt'  // relative to project rootDir
