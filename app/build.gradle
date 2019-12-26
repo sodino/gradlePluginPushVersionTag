@@ -37,12 +37,14 @@ dependencies {
 }
 
 pushVersionTag {
-    versionName     = '1.0.5'
-    versionCode     = 105
+    versionName     = '1.0.6'
+    versionCode     = 106
 
     tagName         = "$versionName"
 
-    file            = 'src/main/java/com/sodino/demo/Constant.kt'
+    file            = 'app/src/main/java/com/sodino/demo/Constant.kt'
     regVersionName  = "const val name = \"[0-9.]+.*\""
     regVersionCode  = "const val code = \\d+"
+
+    strictMode(['app/build.gradle']) // ignoreFiles...   relative to the project root dir
 }

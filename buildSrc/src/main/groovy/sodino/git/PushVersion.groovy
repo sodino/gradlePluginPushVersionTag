@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.process.ExecResult
 
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 public class PushVersion implements Plugin<Project> {
@@ -24,7 +25,7 @@ public class PushVersion implements Plugin<Project> {
                 logger.quiet('pushVersionTag run...')
                 def bean = project.pushVersionTag
 
-                nothingChanged(project)
+                nothingChanged(project, bean)
 
                 fixCodeFile(project, bean)
 
@@ -40,7 +41,10 @@ public class PushVersion implements Plugin<Project> {
         }
     }
 
-    def nothingChanged(Project project) {
+    def nothingChanged(Project project, Bean bean) {
+        if (!bean.ignoreFiles) { // bean.ignoreFiles is null
+            return
+        }
         execCommand(project,
             "git",
                 ["status", "-s"])
@@ -48,13 +52,50 @@ public class PushVersion implements Plugin<Project> {
                     if (result.exitValue == 0) {
                         String changed = standard.toString()
                         if (changed?.length() > 0) {
-                            // 还有其它文件变更，需要提示用户先单独提交这些变更，才能使用 pushVersionTag
-                            throw new RuntimeException("Encounter some file(s) changed. Please execute 'COMMIT' first. ->\n${changed}")
+                           doStrictMode(project.rootProject.rootDir, changed, bean.ignoreFiles)
                         }
                     } else {
                         throw new RuntimeException("git status error. -> \n${error.toString()}")
                     }
         }
+    }
+
+    def doStrictMode(File rootDir, String gitStatus, List<File> fIgnores) {
+        StringBuilder sbChanged = new StringBuilder()
+        def pattern = / . ([\.\w\/]+)/
+        Matcher matcher = gitStatus =~ pattern
+        while(true) {
+            boolean find = matcher.find()
+            if (!find) {
+                break
+            }
+
+            String name = matcher.group(1)
+            File f = new File(rootDir, name)
+            if (!f.exists()) {
+                throw new RuntimeException("pushVersionTag can't find file -> ${f.absolutePath}")
+            }
+
+            boolean isIgnore = fIgnores.findResult {
+                if (it.absolutePath.equals(f.absolutePath)) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+
+            if (isIgnore) {
+                continue
+            }
+            sbChanged.append(matcher.group()).append("\n")
+        }
+
+        if (sbChanged.size() == 0) {
+            return
+        }
+        // commit changed files first, then 'pushVersionTag'
+        throw new RuntimeException("Encounter some file(s) changed. Please execute 'COMMIT' first. ->\n${sbChanged}")
     }
 
     def doGit(Project project, Bean bean) {
@@ -105,7 +146,7 @@ public class PushVersion implements Plugin<Project> {
 //            args args
 //            standardOutput = outStandard
 //            errorOutput = outError
-
+            it.workingDir(project.rootProject.rootDir)
             it.setIgnoreExitValue(true)
             it.setExecutable(cmd)
             it.setArgs(args)
@@ -118,7 +159,7 @@ public class PushVersion implements Plugin<Project> {
 
 
     def fixCodeFile(Project project, Bean bean) {
-        File fTarget = new File(project.projectDir.absolutePath + File.separator + bean.file)
+        File fTarget = new File(project.rootProject.rootDir.absolutePath + File.separator + bean.file)
         if (!fTarget.exists()) {
             throw RuntimeException("Can't find target file${fTarget.absolutePath}")
         } else if (fTarget.isDirectory()) {

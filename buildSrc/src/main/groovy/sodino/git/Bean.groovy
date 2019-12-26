@@ -12,12 +12,36 @@ import java.util.regex.Pattern
 //}
 
 public class Bean {
-    String versionName
-    String versionCode
+    String                      versionName
+    String                      versionCode
 
-    String tagName
+    String                      tagName
 
-    String file
-    String regVersionName
-    String regVersionCode
+    String                      file
+    String                      regVersionName
+    String                      regVersionCode
+
+    List<File>                  ignoreFiles
+
+    def strictMode(def params) {
+        List<String> list = new LinkedList<>()
+        if (params instanceof String) {
+            list.add(params)
+        } else if (params instanceof List) {
+            list.addAll(params)
+        }
+        // strict mode : only commit version files.
+        if (list != null) {
+            if (ignoreFiles == null) {
+                ignoreFiles = new LinkedList<>()
+            }
+
+            list.each { name ->
+                File f = new File(name)
+                if (f.exists()) {
+                    ignoreFiles.add(f)
+                }
+            }
+        }
+    }
 }
