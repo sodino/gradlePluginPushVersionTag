@@ -130,7 +130,7 @@ public class PushVersion implements Plugin<Project> {
             ExecResult result, def standard, def error ->
                 String logName = "${cmd} ${(args.size() >=1 ? args.get(0) : "")} ..."
                 if (result.exitValue == 0) {
-                    logger.quiet("$logName successfully. -> \n${standard.toString()}")
+                    logger.quiet("$logName successfully.")
                 } else {
                     throw new RuntimeException("$logName error. ->\n${error.toString()}")
                 }
@@ -176,7 +176,6 @@ public class PushVersion implements Plugin<Project> {
         }
 
         fTarget.eachLine { line, lineNo ->
-//                    logger.quiet(lineNo + " " + line)
             if (lineNo > 1) {
                 fTmp << "\n"
             }
