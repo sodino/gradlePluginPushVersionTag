@@ -72,7 +72,7 @@ pushVersionTag {
 `regVersionCode`: The Regex to find `versionCode`
 `strictMode`: If some files have been changed and are not 'ignore file', stop 'pushVersionTag' then give a hint.
 
-### Ste4: execute plugin task
+### Step4: execute plugin task
 
 execute plugin task, the code changes will been commit & tag & push.
 
