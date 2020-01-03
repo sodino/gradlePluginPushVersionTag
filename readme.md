@@ -56,6 +56,9 @@ pushVersionTag {
     // strictMode('ignore file , path relative to projectDir')
     // strictMode(['ignore file1', 'ignore file2'])
     strictMode(['app/build.gradle'])
+
+    // alternative : 'codeComment + timestamp' as subfix string added after versionName/versionCode
+    // codeComment  = "//"  // default:java
 }
 ```
 
