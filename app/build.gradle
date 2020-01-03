@@ -37,7 +37,7 @@ dependencies {
 }
 
 pushVersionTag {
-    versionName     = '1.0.6'
+    versionName     = '1.0.0-beta-1'
     versionCode     = 106
 
     tagName         = "$versionName"
