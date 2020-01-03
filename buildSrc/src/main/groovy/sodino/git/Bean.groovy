@@ -21,6 +21,8 @@ public class Bean {
     String                      regVersionName
     String                      regVersionCode
 
+    String                      codeComment     = "//" // default : java language comment character
+
     List<File>                  ignoreFiles
 
     def strictMode(def params) {

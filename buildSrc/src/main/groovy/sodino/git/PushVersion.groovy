@@ -14,6 +14,8 @@ public class PushVersion implements Plugin<Project> {
 
     Logger  logger
 
+    String timestamp                                = yyyyMMddHHmmssSSS()
+
     @Override
     void apply(Project project) {
         logger = project.logger
@@ -53,6 +55,9 @@ public class PushVersion implements Plugin<Project> {
                         String changed = standard.toString()
                         if (changed?.length() > 0) {
                            doStrictMode(project.rootProject.rootDir, changed, bean.ignoreFiles)
+                        } else {
+                            // nothing changed
+
                         }
                     } else {
                         throw new RuntimeException("git status error. -> \n${error.toString()}")
@@ -220,6 +225,9 @@ public class PushVersion implements Plugin<Project> {
         } else {
             String fixResult = findResult.replaceAll(/\d+/, bean.versionCode)
             String result = line.replaceAll(findResult, fixResult)
+
+            result = addTimestampSubfix(result, fixResult, bean)
+
             logger.quiet("fix version code from [$line] to [$result]")
             return result
         }
@@ -237,11 +245,28 @@ public class PushVersion implements Plugin<Project> {
             // 版本名以'"'结尾，即下方中的正则  '\"$'， 然后替换时要补偿该'"'
             String fixResult = findResult.replaceAll(/[0-9.]+.*\"$/, bean.versionName + "\"")
             String result = line.replaceAll(findResult, fixResult)
-//            // 最后加上改动的时间戳(先不加了)
-//            result +=  "   // time modified: ${yyyyMMddHHmmssSSS()}"
+
+            result = addTimestampSubfix(result, fixResult, bean)
+
             logger.quiet("fix version name from [$line] to [$result]")
             return result
         }
+    }
+
+    String addTimestampSubfix(String original, String originalEnd, Bean bean) {
+        String result = original
+        // add subfix : timestamp
+        String subfix = "   ${bean.codeComment} tag : ${timestamp}"
+
+        int idxLast = original.lastIndexOf(originalEnd) + originalEnd.length()
+
+        if (idxLast == original.length()) {
+            result += subfix
+        } else {
+            result = original.substring(0, idxLast) + subfix
+        }
+
+        return result
     }
 
     String currentGitBranch(Project project) {
@@ -265,5 +290,11 @@ public class PushVersion implements Plugin<Project> {
         }
 
         return gitBranch
+    }
+
+    String yyyyMMddHHmmssSSS() {
+        def date = new Date()
+        def formattedDate = date.format('yyyy-MM-dd HH:mm:ss.SSS')
+        return formattedDate
     }
 }
