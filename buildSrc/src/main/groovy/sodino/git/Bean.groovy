@@ -23,7 +23,7 @@ public class Bean {
 
     String                      codeComment     = "//" // default : java language comment character
 
-    List<File>                  ignoreFiles
+    List<String>                ignoreFiles
 
     def strictMode(def params) {
         List<String> list = new LinkedList<>()
@@ -37,13 +37,7 @@ public class Bean {
             if (ignoreFiles == null) {
                 ignoreFiles = new LinkedList<>()
             }
-
-            list.each { name ->
-                File f = new File(name)
-                if (f.exists()) {
-                    ignoreFiles.add(f)
-                }
-            }
+            ignoreFiles.addAll(list)
         }
     }
 }
