@@ -23,7 +23,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.0.1'
         
         // ↓↓↓↓↓↓Second: Add classpath↓↓↓↓↓↓
-        classpath 'com.github.sodino:gradlePluginPushVersionTag:1.0.6'
+        classpath 'com.github.sodino:gradlePluginPushVersionTag:1.0.8'
     }
 }
 	
