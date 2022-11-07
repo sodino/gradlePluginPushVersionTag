@@ -67,7 +67,9 @@ public class PushVersion implements Plugin<Project> {
 
     def doStrictMode(File rootDir, String gitStatus, List<String> nameIgnores) {
         StringBuilder sbChanged = new StringBuilder()
-        def pattern = / . ([\S ]+)/   // any 'non-whitespace character' & ' '(space)
+        // any 'non-whitespace character' & ' '(space)
+        // handle special symbols such as Chinese, dots, brackets, etc.
+        def pattern = / . ([\S ]+)/
         Matcher matcher = gitStatus =~ pattern
         while(true) {
             boolean find = matcher.find()
