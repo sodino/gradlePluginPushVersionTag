@@ -53,7 +53,7 @@ pushVersionTag {
     regVersionCode  = "const val code = \\d+"
 
     // alternative
-    // strictMode('ignore file , path relative to projectDir')
+    // strictMode('ignore file, path relative to rootProjectDir')
     // strictMode(['ignore file1', 'ignore file2'])
     strictMode(['app/build.gradle'])
 
