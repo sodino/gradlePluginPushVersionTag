@@ -67,7 +67,7 @@ public class PushVersion implements Plugin<Project> {
 
     def doStrictMode(File rootDir, String gitStatus, List<String> nameIgnores) {
         StringBuilder sbChanged = new StringBuilder()
-        def pattern = / . ([\.\w\/]+)/
+        def pattern = / . ([\S ]+)/   // any 'non-whitespace character' & ' '(space)
         Matcher matcher = gitStatus =~ pattern
         while(true) {
             boolean find = matcher.find()
@@ -78,12 +78,12 @@ public class PushVersion implements Plugin<Project> {
             String name = matcher.group(1)
             File f = new File(rootDir, name)
             if (!f.exists()) {
-                throw new RuntimeException("pushVersionTag can't find file -> ${f.absolutePath}")
+                throw new RuntimeException("pushVersionTag#doStrictMode() can't find file -> ${f.absolutePath}")
             }
 
             boolean isIgnore = nameIgnores.findResult {
                 def fIgnore = new File(rootDir, it)
-                println("TestDemo findResult it=${it}, fIgnore=${fIgnore.absolutePath}; git change f=${f.absolutePath}")
+                println("TestDemo #doStrictMode() findResult it=${it}, fIgnore=${fIgnore.absolutePath}; git change f=${f.absolutePath}")
                 if (fIgnore.absolutePath.equals(f.absolutePath)) {
                     return true
                 } else {
