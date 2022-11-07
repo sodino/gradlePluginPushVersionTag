@@ -83,7 +83,6 @@ public class PushVersion implements Plugin<Project> {
 
             boolean isIgnore = nameIgnores.findResult {
                 def fIgnore = new File(rootDir, it)
-                println("TestDemo #doStrictMode() findResult it=${it}, fIgnore=${fIgnore.absolutePath}; git change f=${f.absolutePath}")
                 if (fIgnore.absolutePath.equals(f.absolutePath)) {
                     return true
                 } else {
